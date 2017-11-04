@@ -36,6 +36,7 @@ do
 done
 
 # 一般ユーザの登録
+echo "一般ユーザを登録します。"
 user_name="$1"
 pi_group=$(groups pi | tr " " "," | sed -e "s/pi,:,//")
 
@@ -43,4 +44,5 @@ adduser "$user_name"
 usermod -G "$pi_group" "$user_name"
 
 # root パスワード設定
+echo "root のパスワードを変更します。"
 passwd root
