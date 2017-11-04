@@ -8,5 +8,5 @@ indent_style=space
 trim_trailing_whitespace=true
 max_line_length=80
 
-[*.rb]
+[*.{rb,sh}]
 indent_size=2
