@@ -8,14 +8,10 @@ NAME
   ${script_name}
 
 USAGE
-  ${script_name} user_name [-h]
+  ${script_name} [-h]
 
 DESCRIPTION
   Raspbian の初期設定を実行します。
-
-ARGUMENTS
-  user_name
-    一般ユーザとして登録するユーザの名前。
 
 OPTIONS
   -h  ヘルプを表示します。
@@ -37,7 +33,8 @@ done
 
 # 一般ユーザの登録
 echo "一般ユーザを登録します。"
-user_name="$1"
+echo -n "ユーザ名を入力してください: "
+read -r user_name
 pi_group=$(groups pi | tr " " "," | sed -e "s/pi,:,//")
 
 adduser "$user_name"
@@ -46,3 +43,6 @@ usermod -G "$pi_group" "$user_name"
 # root パスワード設定
 echo "root のパスワードを変更します。"
 passwd root
+
+apt-get install fcitx-mozc --install-recommends -y
+dpkg-reconfigure locales
