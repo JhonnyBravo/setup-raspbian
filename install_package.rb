@@ -11,3 +11,10 @@ end
     action :install
   end
 end
+
+# その他ユーティリティ
+%w(xdg-user-dirs-gtk vim).each do |pkg|
+  package pkg do
+    action :install
+  end
+end
