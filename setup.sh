@@ -43,6 +43,3 @@ usermod -G "$pi_group" "$user_name"
 # root パスワード設定
 echo "root のパスワードを変更します。"
 passwd root
-
-apt-get install fcitx-mozc --install-recommends -y
-dpkg-reconfigure locales
