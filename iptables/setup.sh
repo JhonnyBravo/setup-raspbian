@@ -10,6 +10,9 @@ elif [ "${myhost:0:3}" -eq '192' ]; then
   trusthost="${myhost:0:10}0/24"
 fi
 
+# ssh_trusthost=''
+# ssh_port=''
+
 any='0.0.0.0/0'
 
 script_name=$(basename "$0")
@@ -71,7 +74,7 @@ function set_rule_tcp(){
 function set_rule_ssh(){
   # ssh trusthost-> myhost
   iptables -A INPUT -p tcp --syn -m state --state NEW \
-    -s $trusthost -d $myhost --dport 22 -j ACCEPT
+    -s $ssh_trusthost -d $myhost --dport $ssh_port -j ACCEPT
 }
 
 function set_rule_http(){
