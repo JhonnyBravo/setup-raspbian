@@ -4,7 +4,11 @@ myhost=$(ifconfig eth0 \
   | awk 'NR==2 {print $1}' \
   | cut -d : -f 2)
 
-trusthost="${myhost:0:7}0/24"
+if [ "${myhost:0:2}" -eq '10' ]; then
+  trusthost="${myhost:0:7}0/24"
+elif [ "${myhost:0:3}" -eq '192' ]; then
+  trusthost="${myhost:0:10}0/24"
+fi
 
 any='0.0.0.0/0'
 
