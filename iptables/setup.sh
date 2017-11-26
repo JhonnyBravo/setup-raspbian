@@ -13,6 +13,8 @@ fi
 # ssh_trusthost=''
 # ssh_port=''
 
+# samba_trusthost=''
+
 any='0.0.0.0/0'
 
 script_name=$(basename "$0")
@@ -72,9 +74,23 @@ function set_rule_tcp(){
 }
 
 function set_rule_ssh(){
-  # ssh trusthost-> myhost
+  # SSH trusthost-> myhost
   iptables -A INPUT -p tcp --syn -m state --state NEW \
     -s $ssh_trusthost -d $myhost --dport $ssh_port -j ACCEPT
+}
+
+function set_rule_samba(){
+  # Microsoft-DS SMB file sharing trusthost-> myhost
+  iptables -A INPUT -p tcp --syn -m state --state NEW \
+    -s $samba_trusthost -d $myhost --dport 445 -j ACCEPT
+
+  # NetBIOS Session Service trusthost-> myhost
+  iptables -A INPUT -p tcp --syn -m state --state NEW \
+    -s $samba_trusthost -d $myhost --dport 139 -j ACCEPT
+
+  # NetBIOS Name Service:NetBIOS Datagram Service trusthost-> myhost
+  iptables -A INPUT -p udp \
+    -s $samba_trusthost -d $myhost --sport 137:138 -j ACCEPT
 }
 
 function set_rule_http(){
@@ -121,6 +137,7 @@ elif [ $s_flag -eq 1 ]; then
   set_rule_icmp
   set_rule_tcp
   # set_rule_ssh
+  # set_rule_samba
   # set_rule_http
   set_rule_dns
   set_log
