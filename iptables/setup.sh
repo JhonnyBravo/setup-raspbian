@@ -14,6 +14,7 @@ fi
 # ssh_port=''
 
 # samba_trusthost=''
+# apache2_trusthost=''
 
 any='0.0.0.0/0'
 
@@ -93,9 +94,9 @@ function set_rule_samba(){
     -s $samba_trusthost -d $myhost --sport 137:138 -j ACCEPT
 }
 
-function set_rule_http(){
+function set_rule_apache2(){
   iptables -A INPUT -p tcp --syn -m state --state NEW \
-    -s $any -d $myhost --dport 80 -j ACCEPT
+    -s $apache2_trusthost -d $myhost --dport 8000 -j ACCEPT
 }
 
 function set_rule_dns(){
@@ -138,7 +139,7 @@ elif [ $s_flag -eq 1 ]; then
   set_rule_tcp
   # set_rule_ssh
   # set_rule_samba
-  # set_rule_http
+  # set_rule_apache2
   set_rule_dns
   set_log
 fi
