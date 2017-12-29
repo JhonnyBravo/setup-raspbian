@@ -13,7 +13,14 @@ fi
 # ssh_trusthost=''
 # ssh_port=''
 
+# if [ "${myhost:0:2}" -eq '10' ]; then
+#   nmbd_trusthost="${myhost:0:7}255"
+# elif [ "${myhost:0:3}" -eq '192' ]; then
+#   nmbd_trusthost="${myhost:0:10}255"
+# fi
+
 # samba_trusthost=''
+
 # apache2_trusthost=''
 
 any='0.0.0.0/0'
@@ -89,9 +96,13 @@ function set_rule_samba(){
   iptables -A INPUT -p tcp --syn -m state --state NEW \
     -s $samba_trusthost -d $myhost --dport 139 -j ACCEPT
 
-  # NetBIOS Name Service:NetBIOS Datagram Service trusthost-> myhost
+  # NetBIOS Name Service
   iptables -A INPUT -p udp \
-    -s $samba_trusthost -d $myhost --sport 137:138 -j ACCEPT
+    -d $nmbd_trusthost --sport 137 --dport 137 -j ACCEPT
+
+  # NetBIOS Datagram Service
+  iptables -A INPUT -p udp \
+    -d $nmbd_trusthost --sport 138 --dport 138 -j ACCEPT
 }
 
 function set_rule_apache2(){
