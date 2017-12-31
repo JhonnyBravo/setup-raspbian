@@ -115,6 +115,11 @@ function set_rule_dns(){
     -s $any --sport 53 -d $myhost -j ACCEPT
 }
 
+function set_rule_ntp(){
+  iptables -A INPUT -p udp \
+    --sport 123 --dport 123 -d $myhost -j ACCEPT
+}
+
 function set_log(){
   iptables -N LOGGING
   iptables -A LOGGING -j LOG --log-level warning --log-prefix "DROP: " -m limit
@@ -148,9 +153,10 @@ elif [ $s_flag -eq 1 ]; then
   set_rule_lo
   set_rule_icmp
   set_rule_tcp
+  set_rule_dns
+  set_rule_ntp
   # set_rule_ssh
   # set_rule_samba
   # set_rule_apache2
-  set_rule_dns
   set_log
 fi
