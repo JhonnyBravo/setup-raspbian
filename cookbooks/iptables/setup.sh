@@ -1,7 +1,8 @@
 #!/bin/bash
 
-myhost=$(ifconfig eth0 \
-  | awk 'NR==2 {print $1}' \
+#myhost=$(ifconfig eth0 \
+myhost=$(ifconfig wlan0 \
+  | awk 'NR==2 {print $2}' \
   | cut -d : -f 2)
 
 if [ "${myhost:0:2}" -eq '10' ]; then
