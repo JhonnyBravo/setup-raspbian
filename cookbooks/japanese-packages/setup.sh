@@ -32,4 +32,3 @@ do
 done
 
 apt-get install fcitx-mozc --install-recommends -y
-dpkg-reconfigure locales
