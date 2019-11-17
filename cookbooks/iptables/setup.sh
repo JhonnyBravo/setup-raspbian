@@ -61,6 +61,9 @@ function remove_rules(){
   iptables -F
   iptables -Z
   iptables -X
+  iptables -t nat -F
+  iptables -t nat -Z
+  iptables -t nat -X
   iptables -P INPUT ACCEPT
   iptables -P OUTPUT ACCEPT
   iptables -P FORWARD ACCEPT
@@ -126,6 +129,20 @@ function set_rule_vulsrepo(){
     -s $vulsrepo_trusthost -d $myhost --dport 80 -j ACCEPT
 }
 
+function set_rule_lxd(){
+  # INPUT
+  iptables -A INPUT -i lxdbr0 -p tcp -m tcp --dport 53 -j ACCEPT
+  iptables -A INPUT -i lxdbr0 -p udp -m udp --dport 53 -j ACCEPT
+  iptables -A INPUT -i lxdbr0 -p udp -m udp --dport 67 -j ACCEPT
+  # OUTPUT
+  iptables -A OUTPUT -o lxdbr0 -p tcp -m tcp --sport 53 -j ACCEPT
+  iptables -A OUTPUT -o lxdbr0 -p udp -m udp --sport 53 -j ACCEPT
+  iptables -A OUTPUT -o lxdbr0 -p udp -m udp --sport 67 -j ACCEPT
+  # FORWARD
+  iptables -A FORWARD -o lxdbr0 -j ACCEPT
+  iptables -A FORWARD -i lxdbr0 -j ACCEPT
+}
+
 function set_rule_dns(){
   iptables -A INPUT -p udp \
     -s $any --sport 53 -d $myhost -j ACCEPT
@@ -178,6 +195,7 @@ elif [ $s_flag -eq 1 ]; then
   # set_rule_samba
   # set_rule_apache2
   # set_rule_vulsrepo
+  # set_rule_lxd
   set_log
 elif [ $i_flag -eq 1 ]; then
   install
