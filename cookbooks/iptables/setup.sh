@@ -29,6 +29,7 @@ fi
 any='0.0.0.0/0'
 
 script_name=$(basename "$0")
+i_flag=0
 s_flag=0
 r_flag=0
 
@@ -38,17 +39,22 @@ NAME
   ${script_name}
 
 USAGE
-  ${script_name} [-s] [-r] [-h]
+  ${script_name} [-i] [-s] [-r] [-h]
 
 DESCRIPTION
   iptables のルール設定または設定済みルールの解除を実行します。
 
 OPTIONS
+  -i  iptables の設定を永続保存する為に必要なパッケージをインストールします。
   -s  iptables へルールを設定します。
   -r  iptables の設定済みルールを解除します。
   -h  ヘルプを表示します。
 _EOT_
 exit 1
+}
+
+function install(){
+  apt-get update && apt-get install netfilter-persistent iptables-persistent
 }
 
 function remove_rules(){
@@ -137,9 +143,12 @@ function set_log(){
   iptables -A INPUT -j LOGGING
 }
 
-while getopts "srh" option
+while getopts "isrh" option
 do
   case $option in
+    i)
+      i_flag=1
+      ;;
     s)
       s_flag=1
       ;;
@@ -170,4 +179,6 @@ elif [ $s_flag -eq 1 ]; then
   # set_rule_apache2
   # set_rule_vulsrepo
   set_log
+elif [ $i_flag -eq 1 ]; then
+  install
 fi
