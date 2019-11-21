@@ -151,6 +151,8 @@ function set_rule_dns(){
 function set_rule_ntp(){
   iptables -A INPUT -p udp \
     --sport 123 --dport 123 -d $myhost -j ACCEPT
+  iptables -A INPUT -p udp \
+    --sport 123 --dport 32768:60999 -d $myhost -j ACCEPT
 }
 
 function set_log(){
