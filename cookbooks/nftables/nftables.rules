@@ -8,25 +8,46 @@ define ssh_port=22
 
 # filter table
 add table ip filter
+
 # policy 設定
 add chain ip filter INPUT { type filter hook input priority 0; policy drop; }
 add chain ip filter FORWARD { type filter hook forward priority 0; policy drop; }
 add chain ip filter OUTPUT { type filter hook output priority 0; policy accept; }
 add chain ip filter LOGGING
+
 # loopback の通信を許可
 add rule ip filter INPUT iifname "lo" counter accept
+
 # ICMP
 add rule ip filter INPUT ip saddr $eth0_saddr ip daddr $eth0_daddr icmp type echo-request counter accept
 add rule ip filter INPUT ip saddr $eth0_saddr ip daddr $eth0_daddr icmp type echo-reply counter accept
+
 # TCP
 add rule ip filter INPUT ip protocol tcp ct state related,established  counter accept
+
 # DNS
 add rule ip filter INPUT ip daddr $eth0_daddr udp sport 53 counter accept
+
 # NTP
 add rule ip filter INPUT ip daddr $eth0_daddr udp sport 123 udp dport 123 counter accept
 add rule ip filter INPUT ip daddr $eth0_daddr udp sport 123 udp dport 32768-60999 counter accept
+
 # SSH
 add rule ip filter INPUT ip saddr $ssh_saddr ip daddr $ssh_daddr tcp dport $ssh_port tcp flags & (fin|syn|rst|ack) == syn ct state new  counter accept
+
+# LXD
+#add rule ip filter INPUT iifname "lxdbr0" tcp dport 53 counter accept
+#add rule ip filter OUTPUT oifname "lxdbr0" tcp dport 53 counter accept
+
+#add rule ip filter INPUT iifname "lxdbr0" udp dport 53 counter accept
+#add rule ip filter OUTPUT oifname "lxdbr0" udp dport 53 counter accept
+
+#add rule ip filter INPUT iifname "lxdbr0" udp dport 67 counter accept
+#add rule ip filter OUTPUT oifname "lxdbr0" udp dport 67 counter accept
+
+#add rule ip filter FORWARD oifname "lxdbr0" counter accept
+#add rule ip filter FORWARD iifname "lxdbr0" counter accept
+
 # LOGGING
 add rule ip filter INPUT counter jump LOGGING
 add rule ip filter LOGGING limit rate 3/hour burst 5 packets counter log prefix "DROP: "
