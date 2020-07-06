@@ -12,6 +12,12 @@ define ssh_port=22
 define tomcat_daddr=$ssh_daddr
 define tomcat_dnat=10.240.252.10
 
+# Samba
+define samba_daddr=$ssh_daddr
+define samba_dnat=10.240.252.10
+define broadcast_daddr=192.168.56.255
+define broadcast_dnat=10.240.252.255
+
 # filter table
 add table ip filter
 
@@ -69,4 +75,10 @@ add rule ip filter LOGGING counter drop
 # LXD
 # Tomcat
 #add rule ip nat PREROUTING ip daddr $tomcat_daddr tcp dport 8080 counter dnat to $tomcat_dnat:8080
+
+# Samba
+#add rule ip nat PREROUTING ip daddr $samba_daddr tcp dport 445 counter dnat to $samba_dnat:445
+#add rule ip nat PREROUTING ip daddr $samba_daddr tcp dport 139 counter dnat to $samba_dnat:139
+#add rule ip nat PREROUTING ip daddr $broadcast_daddr udp sport 137 udp dport 137 counter dnat to $broadcast_dnat:137
+#add rule ip nat PREROUTING ip daddr $broadcast_daddr udp sport 138 udp dport 138 counter dnat to $broadcast_dnat:138
 # Completed on Sun Jul  5 15:43:52 2020
