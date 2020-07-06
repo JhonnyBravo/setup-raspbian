@@ -2,9 +2,15 @@
 # 変数
 define eth0_saddr=10.0.2.0/24
 define eth0_daddr=10.0.2.15
+
+# SSH
 define ssh_saddr=192.168.56.1
 define ssh_daddr=192.168.56.103
 define ssh_port=22
+
+# Tomcat
+define tomcat_daddr=$ssh_daddr
+define tomcat_dnat=10.240.252.10
 
 # filter table
 add table ip filter
@@ -59,4 +65,8 @@ add rule ip filter LOGGING counter drop
 #add chain ip nat INPUT { type nat hook input priority 100; policy accept; }
 #add chain ip nat POSTROUTING { type nat hook postrouting priority 100; policy accept; }
 #add chain ip nat OUTPUT { type nat hook output priority -100; policy accept; }
+
+# LXD
+# Tomcat
+#add rule ip nat PREROUTING ip daddr $tomcat_daddr tcp dport 8080 counter dnat to $tomcat_dnat:8080
 # Completed on Sun Jul  5 15:43:52 2020
