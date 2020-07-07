@@ -1,22 +1,28 @@
 # Translated by iptables-restore-translate v1.8.2 on Sun Jul  5 15:43:52 2020
 # 変数
-define eth0_saddr=10.0.2.0/24
-define eth0_daddr=10.0.2.15
+define inet_addr=10.0.2.15
+define network_addr=10.0.2.0/24
+define broadcast_addr=192.168.56.255
 
 # SSH
 define ssh_saddr=192.168.56.1
 define ssh_daddr=192.168.56.103
 define ssh_port=22
 
+# LXD
+define container_addr=10.240.252.10
+define container_broadcast_addr=10.240.252.255
+
 # Tomcat
+define tomcat_saddr=$ssh_saddr
 define tomcat_daddr=$ssh_daddr
-define tomcat_dnat=10.240.252.10
+define tomcat_dnat=$container_addr
 
 # Samba
+define samba_saddr=$ssh_saddr
 define samba_daddr=$ssh_daddr
-define samba_dnat=10.240.252.10
-define broadcast_daddr=192.168.56.255
-define broadcast_dnat=10.240.252.255
+define samba_dnat=$container_addr
+define broadcast_dnat=$container_broadcast_addr
 
 # filter table
 add table ip filter
@@ -31,18 +37,18 @@ add chain ip filter LOGGING
 add rule ip filter INPUT iifname "lo" counter accept
 
 # ICMP
-add rule ip filter INPUT ip saddr $eth0_saddr ip daddr $eth0_daddr icmp type echo-request counter accept
-add rule ip filter INPUT ip saddr $eth0_saddr ip daddr $eth0_daddr icmp type echo-reply counter accept
+add rule ip filter INPUT ip saddr $network_addr ip daddr $inet_addr icmp type echo-request counter accept
+add rule ip filter INPUT ip saddr $network_addr ip daddr $inet_addr icmp type echo-reply counter accept
 
 # TCP
 add rule ip filter INPUT ip protocol tcp ct state related,established  counter accept
 
 # DNS
-add rule ip filter INPUT ip daddr $eth0_daddr udp sport 53 counter accept
+add rule ip filter INPUT ip daddr $inet_addr udp sport 53 counter accept
 
 # NTP
-add rule ip filter INPUT ip daddr $eth0_daddr udp sport 123 udp dport 123 counter accept
-add rule ip filter INPUT ip daddr $eth0_daddr udp sport 123 udp dport 32768-60999 counter accept
+add rule ip filter INPUT ip daddr $inet_addr udp sport 123 udp dport 123 counter accept
+add rule ip filter INPUT ip daddr $inet_addr udp sport 123 udp dport 32768-60999 counter accept
 
 # SSH
 add rule ip filter INPUT ip saddr $ssh_saddr ip daddr $ssh_daddr tcp dport $ssh_port tcp flags & (fin|syn|rst|ack) == syn ct state new  counter accept
@@ -74,11 +80,11 @@ add rule ip filter LOGGING counter drop
 
 # LXD
 # Tomcat
-#add rule ip nat PREROUTING ip daddr $tomcat_daddr tcp dport 8080 counter dnat to $tomcat_dnat:8080
+#add rule ip nat PREROUTING ip saddr $tomcat_saddr ip daddr $tomcat_daddr tcp dport 8080 counter dnat to $tomcat_dnat:8080
 
 # Samba
-#add rule ip nat PREROUTING ip daddr $samba_daddr tcp dport 445 counter dnat to $samba_dnat:445
-#add rule ip nat PREROUTING ip daddr $samba_daddr tcp dport 139 counter dnat to $samba_dnat:139
-#add rule ip nat PREROUTING ip daddr $broadcast_daddr udp sport 137 udp dport 137 counter dnat to $broadcast_dnat:137
-#add rule ip nat PREROUTING ip daddr $broadcast_daddr udp sport 138 udp dport 138 counter dnat to $broadcast_dnat:138
+#add rule ip nat PREROUTING ip saddr $samba_saddr ip daddr $samba_daddr tcp dport 445 counter dnat to $samba_dnat:445
+#add rule ip nat PREROUTING ip saddr $samba_saddr ip daddr $samba_daddr tcp dport 139 counter dnat to $samba_dnat:139
+#add rule ip nat PREROUTING ip saddr $samba_saddr ip daddr $broadcast_addr udp sport 137 udp dport 137 counter dnat to $broadcast_dnat:137
+#add rule ip nat PREROUTING ip saddr $samba_saddr ip daddr $broadcast_addr udp sport 138 udp dport 138 counter dnat to $broadcast_dnat:138
 # Completed on Sun Jul  5 15:43:52 2020
